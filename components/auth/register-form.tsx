@@ -14,42 +14,42 @@ import {
     FormMessage,
 } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
-import { LoginSchema } from '@/schemas'
+import { RegisterSchema } from '@/schemas'
 import { Button } from '../ui/button'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FormError } from '../form-error'
 import { FormSuccess } from '../form-success'
-import { login } from '@/actions/login'
+import { register } from '@/actions/register'
 import { useTransition } from 'react'
 
-export default function LoginForm() {
+export default function RegisterForm() {
 
   const [viewPassword, setViewPassword] = React.useState(false)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = React.useState<string | undefined>(undefined)
   const [success, setSuccess] = React.useState<string | undefined>(undefined)
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       email: '',
       password: '',
     }
   })
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
     startTransition(
-      () => login(values).then((data)=> {
+      () => register(values).then((data)=> {
         setError(data.error)
-        setSuccess(data.success);
+        setSuccess(data.success)
       }))
   }
 
   return (
     <CardWrapper
-      headerLabel='Welcome Back!'
-      backButtonLabel='Don’t have an account?'
-      backButtonHref='/auth/register'
+      headerLabel='Create an account'
+      backButtonLabel='Already have an account?'
+      backButtonHref='/auth/login'
       showSocial>
       <Form {...form}>
         <form
@@ -68,6 +68,24 @@ export default function LoginForm() {
                   {...field}
                   placeholder="john.doe@example.com"
                   type="email"
+                  disabled={isPending}
+                  />
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            }/>
+            {/* Name field */}
+             <FormField
+              control={form.control}
+              name="name"
+              render={({field})=>
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                  {...field}
+                  placeholder="Your name"
+                  type="string"
                   disabled={isPending}
                   />
                 </FormControl>
@@ -107,7 +125,7 @@ export default function LoginForm() {
             type='submit'
             className='w-full'
             disabled={isPending}
-          >Login</Button>
+          >Register</Button>
         </form>
       </Form>
     </CardWrapper>
