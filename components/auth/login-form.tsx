@@ -20,13 +20,14 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FormError } from '../form-error'
 import { login } from '@/actions/login'
 import { useTransition } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function LoginForm() {
-
+  const searchParams = useSearchParams()
+  const urlError = searchParams.get('error') === "OAuthAccountNotLinked" ? "Email already in use with a different provider" : undefined
   const [viewPassword, setViewPassword] = React.useState(false)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = React.useState<string | undefined>(undefined)
-  const [success, setSuccess] = React.useState<string | undefined>(undefined)
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -100,6 +101,7 @@ export default function LoginForm() {
             }/>
           </div>
           {error && (<FormError message={error}/>)}
+          {urlError && (<FormError message={urlError}/>)}
           <Button
             type='submit'
             className='w-full'
