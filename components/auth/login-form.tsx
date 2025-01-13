@@ -18,7 +18,6 @@ import { LoginSchema } from '@/schemas'
 import { Button } from '../ui/button'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FormError } from '../form-error'
-import { FormSuccess } from '../form-success'
 import { login } from '@/actions/login'
 import { useTransition } from 'react'
 
@@ -101,7 +100,6 @@ export default function LoginForm() {
             }/>
           </div>
           {error && (<FormError message={error}/>)}
-          {success && (<FormSuccess message={success}/>)}
           <Button
             type='submit'
             className='w-full'

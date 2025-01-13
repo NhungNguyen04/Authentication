@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen flex items-center justify-center 
     bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))]
-    from-cyan-600 to-slate-400">
+    from-cyan-600 to-neutral-300">
       <div className="space-y-6 text-center">
         <h1 className={cn("text-6xl font-semibold text-white drop-shadow-md",
           font.className

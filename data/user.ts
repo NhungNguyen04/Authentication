@@ -1,13 +1,27 @@
-import {prisma} from '@/prisma/prisma';
+import { prisma } from '@/prisma/prisma';
 
 export const getUserByEmail = async (email: string) => {
     try {
-        const user = await prisma.user.findUnique({where: {email}});
+       
+
+        console.time('dbQuery');
+        const user = await prisma.user.findUnique({
+            where: { email },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                password: true
+            }
+        });
+        console.timeEnd('dbQuery');
+
         return user;
     } catch (error) {
+        console.error("Database error:", error);
         return null;
     }
-}
+};
 
 export const getUserById = async (id: string) => {
     try {
