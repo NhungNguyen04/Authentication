@@ -11,7 +11,8 @@ export const getUserByEmail = async (email: string) => {
                 id: true,
                 email: true,
                 name: true,
-                password: true
+                password: true,
+                emailVerified: true,
             }
         });
         console.timeEnd('dbQuery');

@@ -18,6 +18,7 @@ import { LoginSchema } from '@/schemas'
 import { Button } from '../ui/button'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FormError } from '../form-error'
+import { FormSuccess } from '../form-success'
 import { login } from '@/actions/login'
 import { useTransition } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -28,6 +29,7 @@ export default function LoginForm() {
   const [viewPassword, setViewPassword] = React.useState(false)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = React.useState<string | undefined>(undefined)
+  const [success, setSuccess] = React.useState<string | undefined>(undefined)
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -41,6 +43,7 @@ export default function LoginForm() {
     startTransition(
       () => login(values).then((data)=> {
         setError(data?.error)
+        setSuccess(data?.success)
       }))
   }
 
@@ -102,6 +105,7 @@ export default function LoginForm() {
           </div>
           {error && (<FormError message={error}/>)}
           {urlError && (<FormError message={urlError}/>)}
+          {success && (<FormSuccess message={success}/>)}
           <Button
             type='submit'
             className='w-full'
