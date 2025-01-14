@@ -21,10 +21,13 @@ function NewVerificationForm() {
     }
     newVerification(token)
       .then((data) => {
-        setSuccess(data.success)
-        setError(data?.error)
+        setSuccess(data.success);
+        setError(data?.error);
+      })
+      .catch(() => {
+        setError("Something went wrong!");
       });
-  }, [token, success, error]);
+  }, [token]);
 
   useEffect(()=> {
     onSubmit();
