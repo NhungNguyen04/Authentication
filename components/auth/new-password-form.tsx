@@ -1,50 +1,98 @@
 "use client"
-import React, {useCallback, useEffect, useState} from 'react'
+
+import React from 'react'
 import CardWrapper from './card-wrapper'
-import {BeatLoader} from 'react-spinners'
-import { useSearchParams } from 'next/navigation'
-import { newVerification } from '@/actions/new-verification'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Input } from '../ui/input'
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form'
+import { useForm } from 'react-hook-form'
+import { NewPasswordSchema } from '@/schemas'
+import { Button } from '../ui/button'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { FormError } from '../form-error'
 import { FormSuccess } from '../form-success'
+import { useTransition } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { newPassword } from '@/actions/new-password'
 
-function NewPasswordForm() {
-  
-  const searchParams = useSearchParams();
+export default function NewPasswordForm() {
+  const searchParams = useSearchParams()
   const token = searchParams.get('token');
-  const [error, setError] = useState<string | undefined>();
-  const [success, setSuccess] = useState<string | undefined>();
 
-  const onSubmit = useCallback(() => {
-    if (!token) {
-      setError("Missing Token");
-      return;
+  const [viewPassword, setViewPassword] = React.useState(false)
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = React.useState<string | undefined>(undefined)
+  const [success, setSuccess] = React.useState<string | undefined>(undefined)
+
+  const form = useForm<z.infer<typeof NewPasswordSchema>>({
+    resolver: zodResolver(NewPasswordSchema),
+    defaultValues: {
+      password: '',
     }
-    newVerification(token)
-      .then((data) => {
-        setSuccess(data.success);
-        setError(data?.error);
-      })
-      .catch(() => {
-        setError("Something went wrong!");
-      });
-  }, [token]);
+  })
 
-  useEffect(()=> {
-    onSubmit();
-  }, [onSubmit])
+  const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
+    newPassword(values, token).then((data)=> {
+      setError(typeof data?.error === 'string' ? data.error : undefined)
+      setSuccess(data?.success)
+    })
+  }
 
   return (
     <CardWrapper
       headerLabel='Reset your password'
+      backButtonLabel='Back to login'
       backButtonHref='/auth/login'
-      backButtonLabel='Back to login'>
-        <div className='flex items-center w-full justify-center'>
-          {!error && !success && (<BeatLoader  />)}
+      showSocial>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='space-y-6'>
+          <div className='space-y-4'>
+            {/* Password field */}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({field})=>
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      placeholder='********'
+                      type={viewPassword ? "text" : "password"}
+                      disabled={isPending}
+                    />
+                    <div 
+                      className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
+                      onClick={() => setViewPassword(!viewPassword)}
+                    >
+                      {viewPassword ? <FaEye/> : <FaEyeSlash/>}
+                    </div>
+                  </div>
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            }/>
+          </div>
           {error && (<FormError message={error}/>)}
           {success && (<FormSuccess message={success}/>)}
-        </div>
+          <Button
+            type='submit'
+            className='w-full'
+            disabled={isPending}
+        >Reset password</Button>
+        </form>
+      </Form>
     </CardWrapper>
   )
 }
-
-export default NewPasswordForm
