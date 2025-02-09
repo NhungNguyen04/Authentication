@@ -13,6 +13,7 @@ export const getUserByEmail = async (email: string) => {
                 name: true,
                 password: true,
                 emailVerified: true,
+                isTwoFactorEnabled: true,
             }
         });
         console.timeEnd('dbQuery');

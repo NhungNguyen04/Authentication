@@ -31,6 +31,7 @@ export default function LoginForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = React.useState<string | undefined>(undefined)
   const [success, setSuccess] = React.useState<string | undefined>(undefined)
+  const [showTwoFactor, setShowTwoFactor] = React.useState(false)
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -45,6 +46,7 @@ export default function LoginForm() {
       () => login(values).then((data)=> {
         setError(data?.error)
         setSuccess(data?.success)
+        if (data?.twoFactor) setShowTwoFactor(data?.twoFactor)
       }))
   }
 
@@ -60,6 +62,7 @@ export default function LoginForm() {
           className='space-y-6'>
           <div className='space-y-4'>
             {/* Email field */}
+            {!showTwoFactor && (<>
             <FormField
               control={form.control}
               name="email"
@@ -110,6 +113,25 @@ export default function LoginForm() {
                 <FormMessage/>
               </FormItem>
             }/>
+            </>)}
+            {showTwoFactor && (
+              <FormField
+              control={form.control}
+              name="code"
+              render={({field})=>
+              <FormItem>
+                <FormLabel>Two Factor Code</FormLabel>
+                <FormControl>
+                  <Input
+                  {...field}
+                  placeholder="123456"
+                  disabled={isPending}
+                  />
+                </FormControl>
+                <FormMessage/>
+              </FormItem>
+            }/>
+            )}
           </div>
           {error && (<FormError message={error}/>)}
           {urlError && (<FormError message={urlError}/>)}
@@ -118,7 +140,7 @@ export default function LoginForm() {
             type='submit'
             className='w-full'
             disabled={isPending}
-          >Login</Button>
+          >{showTwoFactor ? "Confirm" : "Login"}</Button>
         </form>
       </Form>
     </CardWrapper>
