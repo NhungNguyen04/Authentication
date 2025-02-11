@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,16 +18,18 @@ export const metadata: Metadata = {
   description: "An authentication toolkit with Next.js and Prisma",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    <SessionProvider>
     <html lang="en" className="h-full">
       <body className="h-full">
         {children}
       </body>
     </html>
+    </SessionProvider>
   );
 }
