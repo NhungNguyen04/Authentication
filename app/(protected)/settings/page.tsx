@@ -74,7 +74,7 @@ export default function SettingsPage() {
             className="space-y-6" 
             onSubmit={form.handleSubmit(onSubmit)}
           >
-            <div className="space-y-4">
+            <div className="space-y-2">
               <FormField
                 control={form.control}
                 name="name"
