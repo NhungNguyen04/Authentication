@@ -23,14 +23,12 @@ export default auth(async function middleware(req) {
 
     if (isAuthRoute) {
         if (req.auth) {
-            console.log(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl.origin))
             return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl.origin));
         }
         return NextResponse.next();
     }
 
     if (!req.auth && !isPublicRoute) {
-        console.log(new URL("/auth/login", nextUrl.origin))
         return Response.redirect(new URL("/auth/login", nextUrl.origin));
     }
 

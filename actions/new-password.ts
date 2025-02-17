@@ -20,10 +20,7 @@ export const newPassword = async (
     return { error: validatedFields.error };
   }
 
-  console.log("token", token);
-
   const existingToken = await getPasswordResetTokenByToken(token);
-  console.log("existing token", existingToken);
   if (!existingToken) {
     return { error: "Invalid token!" };
   }

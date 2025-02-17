@@ -13,8 +13,6 @@ export const reset = async (values: z.infer<typeof ResetSchema>) => {
    return { error: 'Email is required' };
  }
 
- console.log("Email: ", validatedField.email);
-
  const existingUser = await getUserByEmail(validatedField.email);
 
  if (!existingUser) {

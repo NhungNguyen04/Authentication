@@ -1,3 +1,4 @@
+"use server"
 import { auth } from '@/auth'
 
 const currentUser = async () => {
@@ -6,4 +7,12 @@ const currentUser = async () => {
   return session?.user;
 }
 
-export default currentUser
+const currentRole = async () => {
+  const session = await auth();
+  
+  return session?.user.role;
+}
+
+
+export default currentUser; 
+export { currentRole };

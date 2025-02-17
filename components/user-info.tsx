@@ -8,7 +8,6 @@ interface UserInfoProps {
 }
 
 export const UserInfo = ({ user, label }: UserInfoProps) => {
-  console.log("USER", user);
   return (
     <Card>
       <CardHeader>

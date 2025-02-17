@@ -18,7 +18,6 @@ export const newVerification = async (token: string) => {
 
   if (!existingUser) return {error: "Email does not exist!"}
 
-  console.log("Updating user");
   await prisma.user.update({
     where: {id: existingUser.id},
     data: {
