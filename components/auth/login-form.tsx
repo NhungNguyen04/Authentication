@@ -26,7 +26,7 @@ import Link from 'next/link'
 
 export default function LoginForm() {
   const searchParams = useSearchParams()
-  const urlError = searchParams.get('error') === "OAuthAccountNotLinked" ? "Email already in use with a different provider" : undefined
+  const urlError = searchParams?.get('error') === "OAuthAccountNotLinked" ? "Email already in use with a different provider" : undefined
   const [viewPassword, setViewPassword] = React.useState(false)
   const [isPending, startTransition] = useTransition();
   const [error, setError] = React.useState<string | undefined>(undefined)

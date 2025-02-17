@@ -1,37 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from 'next/font/google';
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { Providers } from "./providers";
 import { Toaster } from "sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "An authentication toolkit with Next.js and Prisma",
+  title: "Auth Tutorial",
+  description: "Auth Tutorial",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <SessionProvider>
-    <html lang="en" className="h-full">
-      <body className="h-full">
-        <Toaster/>
-        {children}
+    <html lang="en">
+      <body className={inter.className}>
+        <Providers>
+          <Toaster />
+          {children}
+        </Providers>
       </body>
     </html>
-    </SessionProvider>
   );
 }

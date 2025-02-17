@@ -21,11 +21,20 @@ import { FormError } from '../form-error'
 import { FormSuccess } from '../form-success'
 import { useTransition } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { newPassword } from '@/actions/new-password'
 
 export default function NewPasswordForm() {
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  const token = searchParams?.get('token');
+
+  // Redirect if no token is present
+  if (!token) {
+    router.push("/auth/login");
+    return null;
+  }
 
   const [viewPassword, setViewPassword] = React.useState(false)
   const [isPending, startTransition] = useTransition();
