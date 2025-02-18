@@ -10,6 +10,7 @@ import { sendVerificationEmail, sendTwoFactorTokenEmail } from '@/lib/mail';
 import { getTwoFactorTokenByEmail } from '@/data/two-factor-token';
 import { prisma } from '@/prisma/prisma';
 import { getTwoFactorConfirmationByUserId } from '@/data/two-factor-confirmation';
+import { compare } from 'bcryptjs';
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   const validatedFields = LoginSchema.safeParse(values);
@@ -28,47 +29,48 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
 
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(existingUser.email);
-    await  sendVerificationEmail(verificationToken.email, verificationToken.token)
+    await sendVerificationEmail(verificationToken.email, verificationToken.token)
     return {success: "Confirmation email sent!"}
+  }
+
+  // First verify the password
+  const passwordsMatch = await compare(password, existingUser.password);
+  if (!passwordsMatch) {
+    return { error: "Invalid credentials!" };
   }
 
   if (existingUser.isTwoFactorEnabled && existingUser.email) {
     if (code) {
       const twoFactorToken = await getTwoFactorTokenByEmail(existingUser.email);
-      if (!twoFactorToken) {
-        return { error: "Invalid code!"}
+      if (!twoFactorToken || twoFactorToken.token !== code) {
+        return { error: "Invalid code!" }
       }
 
-      if (twoFactorToken.token !== code) {
-        return { error: "Invalid code!"}
+      const hasExpired = new Date(twoFactorToken.expires) < new Date();
+      if (hasExpired) {
+        return { error: "Code has expired!" }
+      }
+
+      // Delete the token first
+      await prisma.twoFactorToken.delete({
+        where: { id: twoFactorToken.id }
+      });
+
+      // Update 2FA confirmation
+      const existingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
+      if (existingConfirmation) {
+        await prisma.twoFactorConfirmation.delete({
+          where: { id: existingConfirmation.id }
+        });
       }
       
-      const hasExpired = new Date(twoFactorToken.expires) < new Date();
-
-      if (hasExpired) {
-        return { error: "Code has expired!"}
-      }
-
-      await prisma.twoFactorToken.delete({
-        where: {id: twoFactorToken.id}
-      })
-
-      const exisitingConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
-      if (exisitingConfirmation) {
-        await prisma.twoFactorConfirmation.delete({
-          where: {id: exisitingConfirmation.id}
-        })
-      }
       await prisma.twoFactorConfirmation.create({
-        data: {
-          userId: existingUser.id
-        }
-      })
-
+        data: { userId: existingUser.id }
+      });
     } else {
       const twoFactorToken = await generateTwoFactorToken(existingUser.email);
       await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
-      return {twoFactor: true}
+      return { twoFactor: true }
     }
   }
 
@@ -80,12 +82,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid credentials!" };
-        default:
-          return { error: "Something went wrong!" };
-      }
+      return { error: "Something went wrong!" };
     }
     throw error;
   }
